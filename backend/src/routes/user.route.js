@@ -1,5 +1,9 @@
 import express from "express";
 import {
+  changeUserRole,
+  deleteUser,
+  getSingleUser,
+  getUsersList,
   loginUser,
   logoutUser,
   registerUser,
@@ -9,7 +13,7 @@ import {
   updateProfile,
   userProfile,
 } from "../controller/user.controller.js";
-import { authenticateUser } from "../middleware/auth.user.js";
+import { authenticateUser, authorizeRoles } from "../middleware/auth.user.js";
 
 const router = express.Router();
 
@@ -21,5 +25,11 @@ router.post("/profile/update", authenticateUser, updateProfile);
 router.post("/password/forgot", resetPasswordRequest);
 router.post("/reset/password/:token", resetPassword);
 router.post("/update/password", authenticateUser, updatePassword);
+router.get("/admin/users", authenticateUser, authorizeRoles("admin"), getUsersList);
+
+router.route("/admin/user/:id")
+  .post(authenticateUser, authorizeRoles("admin"), getSingleUser)
+  .put(authenticateUser, authorizeRoles("admin"), changeUserRole)
+  .delete(authenticateUser, authorizeRoles("admin"), deleteUser);
 
 export default router;

@@ -5,14 +5,12 @@ import { sendToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
 import crypto from 'crypto';
 
-// Register User
 export const registerUser = handleAsyncError(async (req, res, next) => {
   const user = await User.create(req.body);
 
   sendToken(user, res, 201);
 });
 
-// Login User
 export const loginUser = handleAsyncError(async (req, res, next) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -32,7 +30,6 @@ export const loginUser = handleAsyncError(async (req, res, next) => {
   sendToken(user, res, 200);
 })
 
-// Logout User
 export const logoutUser = handleAsyncError(async (req, res, next) => {
   res.cookie("token", null, {
     expires: new Date(Date.now()),
@@ -45,7 +42,6 @@ export const logoutUser = handleAsyncError(async (req, res, next) => {
   });
 })
 
-// User Profile
 export const userProfile = handleAsyncError(async (req, res, next) => {
   const user = await User.findById(req.user.id);
   res.status(200).json({
@@ -91,7 +87,6 @@ export const resetPasswordRequest = handleAsyncError(async (req, res, next) => {
   }
 })
 
-// Reset Password
 export const resetPassword = handleAsyncError(async (req, res, next) => {
   const resetPasswordToken = crypto.createHash("sha256").update(req.params.token).digest("hex");
   const user = await User.findOne({
@@ -112,7 +107,6 @@ export const resetPassword = handleAsyncError(async (req, res, next) => {
   sendToken(user, res, 200);
 })
 
-// Update Password
 export const updatePassword = handleAsyncError(async (req, res, next) => {
   const { oldPassword, newPassword, confirmPassword } = req.body;
   const user = await User.findOne({ email: req.user.email }).select("+password");
@@ -130,7 +124,6 @@ export const updatePassword = handleAsyncError(async (req, res, next) => {
   sendToken(user, res, 200);
 })
 
-// Update User Profile
 export const updateProfile = handleAsyncError(async (req, res, next) => {
   const { name } = req.body;
   const user = await User.findByIdAndUpdate(req.user.id, { name }, {
@@ -142,5 +135,55 @@ export const updateProfile = handleAsyncError(async (req, res, next) => {
   res.status(200).json({
     success: true,
     user
+  });
+})
+
+// Admin:- Get All Users
+export const getUsersList = handleAsyncError(async (req, res, next) => {
+  const users = await User.find();
+
+  res.status(200).json({
+    success: true,
+    users
+  });
+})
+
+// Admin:- Get Single User Details
+export const getSingleUser = handleAsyncError(async (req, res, next) => {
+  const user = await User.findById(req.params.id);
+  if (!user) {
+    return next(new HandleError(`User doesn't exist with this id:${req.params.id}`, 400));
+  }
+  res.status(200).json({
+    success: true,
+    user
+  });
+})
+
+// Admin:- Change User Role
+export const changeUserRole = handleAsyncError(async (req, res, next) => {
+  const { role } = req.body;
+  const user = await User.findByIdAndUpdate(req.params.id, { role }, {
+    new: true,
+    runValidators: true,
+  })
+  if (!user) {
+    return next(new HandleError("User not found", 400));
+  }
+  res.status(200).json({
+    success: true,
+    user
+  })
+})
+
+// Admin:- Delete user profile
+export const deleteUser = handleAsyncError(async (req, res, next) => {
+  const user = await User.findByIdAndDelete(req.params.id);
+  if (!user) {
+    return next(new HandleError("User not found", 400));
+  }
+  res.status(200).json({
+    success: true,
+    message: "User deleted successfully"
   });
 })
