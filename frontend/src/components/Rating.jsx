@@ -38,9 +38,9 @@ const Rating = ({ value, onRatingChange, disabled }) => {
         <span
           key={i}
           className={`star ${isFilled ? "filled" : "empty"}`}
-          onMouseEnter={()=>handleMouseEnter}
-          onMouseLeave={()=>handleMouseLeave}
-          onClick={()=>handleClick}
+          onMouseEnter={()=>handleMouseEnter(i)}
+          onMouseLeave={()=>handleMouseLeave()}
+          onClick={()=>handleClick(i)}
           style={{pointerEvents:disabled ? "none" : "auto"}}
           >★</span>
       )

@@ -1,17 +1,32 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import SearchIcon from "@mui/icons-material/Search";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import CloseIcon from "@mui/icons-material/Close";
 import MenuIcon from "@mui/icons-material/Menu";
 import "../componentStyles/Navbar.css";
+import "../pageStyles/Search.css";
+import { useSelector } from "react-redux";
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const isAuthenticated = true;
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen)
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
+
+  const { isAuthenticated } = useSelector((state) => state.user);
+  const toggleSearch = () => setIsSearchOpen(!isSearchOpen)
+  const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
+
+  const handleSerachSubmit = (e) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      navigate(`/products?keyword=${encodeURIComponent(searchQuery.trim())}`)
+    } else {
+      navigate(`/products`)
+    }
+    setSearchQuery("");
   }
 
   return (
@@ -32,13 +47,22 @@ const Navbar = () => {
 
         <div className="navbar-icons">
           <div className="search-container">
-            <form className="search-form">
+            <form
+              className={`search-form ${isSearchOpen ? "active" : ""}`}
+              onSubmit={handleSerachSubmit}
+            >
               <input
                 type="text"
                 placeholder="Search products..."
                 className="search-input"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <button className="search-icon">
+              <button
+                type="button"
+                className="search-icon"
+                onClick={toggleSearch}
+              >
                 <SearchIcon focusable="false" />
               </button>
             </form>

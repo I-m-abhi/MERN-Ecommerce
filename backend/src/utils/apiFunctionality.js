@@ -10,6 +10,19 @@ class APIFunctionality {
         $regex: this.queryString.keyword,
         $options: "i"
       }
+
+      // Usecase - When we search on different category
+      // $or: [{
+      //   name: {
+      //     $regex: this.queryString.keyword,
+      //     $options: "i"
+      //   }
+      // },{
+      //   des: {
+      //     $regex: this.queryString.keyword,
+      //     $options: "i"
+      //   }
+      // }]
     } : {};
     this.query = this.query.find({ ...keyword });
 
