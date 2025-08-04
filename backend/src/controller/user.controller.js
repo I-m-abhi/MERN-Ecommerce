@@ -3,11 +3,11 @@ import handleAsyncError from '../middleware/handleAsyncError.js';
 import HandleError from '../utils/handleError.js';
 import { sendToken } from '../utils/jwtToken.js';
 import { sendEmail } from '../utils/sendEmail.js';
-import {v2 as cloudinary} from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import crypto from 'crypto';
 
 export const registerUser = handleAsyncError(async (req, res, next) => {
-  const {name, email, password, avatar} = req.body;
+  const { name, email, password, avatar } = req.body;
   const myCloud = await cloudinary.uploader.upload(avatar, {
     folder: "avatars",
     width: 150,
@@ -83,7 +83,7 @@ export const resetPasswordRequest = handleAsyncError(async (req, res, next) => {
     return next(new HandleError("Error generating reset token", 500));
   }
 
-  const resetPasswordUrl = `http://localhost/api/v1/reset/password/${resetToken}`;
+  const resetPasswordUrl = `${req.protocol}://${req.get('host')}/reset/password/${resetToken}`;
   const message = `Use the following link to reset your password: ${resetPasswordUrl}. \n\n This link will expire in 5 minutes. \n\n If you did not request this, please ignore this email.`;
   try {
     sendEmail({
@@ -141,8 +141,27 @@ export const updatePassword = handleAsyncError(async (req, res, next) => {
 })
 
 export const updateProfile = handleAsyncError(async (req, res, next) => {
-  const { name } = req.body;
-  const user = await User.findByIdAndUpdate(req.user.id, { name }, {
+  const { name, email, avatar } = req.body;
+  const updateUserDetails = {
+    name, email
+  }
+
+  if (avatar !== "") {
+    const user = await User.findById(req.user.id);
+    const imageId = user.avatar.public_id;
+    await cloudinary.uploader.destroy(imageId)
+    const myCloud = await cloudinary.uploader.upload(avatar, {
+      folder: "avatars",
+      width: 150,
+      crop: 'scale'
+    })
+    updateUserDetails.avatar = {
+    public_id: myCloud.public_id,
+    url: myCloud.secure_url
+  }
+  }
+
+  const user = await User.findByIdAndUpdate(req.user.id,  updateUserDetails, {
     new: true,
     runValidators: true,
     useFindAndModify: false

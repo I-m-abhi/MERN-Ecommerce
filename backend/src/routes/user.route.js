@@ -21,10 +21,10 @@ router.post("/register", registerUser);
 router.post("/login", loginUser);
 router.post("/logout", logoutUser);
 router.get("/profile", authenticateUser, userProfile);
-router.post("/profile/update", authenticateUser, updateProfile);
+router.put("/profile/update", authenticateUser, updateProfile);
 router.post("/password/forgot", resetPasswordRequest);
 router.post("/reset/password/:token", resetPassword);
-router.post("/update/password", authenticateUser, updatePassword);
+router.put("/password/update", authenticateUser, updatePassword);
 router.get("/admin/users", authenticateUser, authorizeRoles("admin"), getUsersList);
 
 router.route("/admin/user/:id")

@@ -51,6 +51,63 @@ export const logout = createAsyncThunk('user/logout', async (_, { rejectWithValu
   }
 })
 
+export const updateProfile = createAsyncThunk('user/updateProfile', async (userData, { rejectWithValue }) => {
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    }
+    const { data } = await axios.put('/api/v1/profile/update', userData, config);
+    return data
+  } catch (error) {
+    return rejectWithValue(error.response?.data || { message: 'Failed to update profile!' })
+  }
+})
+
+export const updatePassword = createAsyncThunk('user/updatePassword', async (formData, { rejectWithValue }) => {
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+    const { data } = await axios.put('/api/v1/password/update', formData, config);
+    return data
+  } catch (error) {
+    return rejectWithValue(error.response?.data || 'Failed to update Paasword!')
+  }
+})
+
+export const forgotPassword = createAsyncThunk('user/forgotPassword', async (email, { rejectWithValue }) => {
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+    const { data } = await axios.post('/api/v1/password/forgot', email, config);
+    return data
+  } catch (error) {
+    return rejectWithValue(error.response?.data || { message: 'Email sent failed...' })
+  }
+})
+
+export const resetPassword = createAsyncThunk('user/resetPassword', async ({token, userData}, { rejectWithValue }) => {
+  try {
+    const config = {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }
+    const { data } = await axios.post(`/api/v1/reset/password/${token}`, userData, config);
+    return data
+  } catch (error) {
+    console.log(userData, 'userData')
+    return rejectWithValue(error.response?.data || { message: 'Reset Password failed...' })
+  }
+})
+
 const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -58,7 +115,8 @@ const userSlice = createSlice({
     loading: false,
     error: null,
     success: false,
-    isAuthenticated: false
+    isAuthenticated: false,
+    message: null
   },
   reducers: {
     removeErrors: (state) => {
@@ -145,6 +203,75 @@ const userSlice = createSlice({
       .addCase(logout.rejected, (state, action) => {
         state.loading = false
         state.error = action.payload || "Login failed! Plaese try again later..."
+      })
+
+    // Update Profile
+    builder.addCase(updateProfile.pending, (state) => {
+      state.loading = true
+      state.error = null
+    })
+      .addCase(updateProfile.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.user = action.payload?.user || null
+        state.success = action.payload?.success
+        state.message = action.payload?.message
+      })
+
+      .addCase(updateProfile.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload?.message || "Profile Update failed! Plaese try again later..."
+      })
+
+    // Update Password
+    builder.addCase(updatePassword.pending, (state) => {
+      state.loading = true
+      state.error = null
+    })
+      .addCase(updatePassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.success = action.payload?.success
+      })
+
+      .addCase(updatePassword.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload?.message || "Password Update failed! Plaese try again later..."
+      })
+
+    // Forgot Password
+    builder.addCase(forgotPassword.pending, (state) => {
+      state.loading = true
+      state.error = null
+    })
+      .addCase(forgotPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.success = action.payload?.success
+        state.message = action.payload?.message
+      })
+
+      .addCase(forgotPassword.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload?.message || "Email sent failed..."
+      })
+
+    // Reset Password
+    builder.addCase(resetPassword.pending, (state) => {
+      state.loading = true
+      state.error = null
+    })
+      .addCase(resetPassword.fulfilled, (state, action) => {
+        state.loading = false;
+        state.error = null;
+        state.success = action.payload?.success
+        state.user = null
+        state.isAuthenticated = false
+      })
+
+      .addCase(resetPassword.rejected, (state, action) => {
+        state.loading = false
+        state.error = action.payload?.message || "Reset Password failed..."
       })
   }
 })
