@@ -1,8 +1,6 @@
 import app from "./app.js";
 import connectMongoDB from "./config/db.js";
-
-import dotenv from "dotenv";
-dotenv.config({path: "./src/config/config.env"});
+import Razorpay from 'razorpay';
 
 import {v2 as cloudinary} from "cloudinary";
 cloudinary.config({
@@ -19,6 +17,14 @@ process.on("uncaughtException", (err) => {
 });
 
 const PORT = process.env.PORT || 3000;
+
+export const instance = new Razorpay({
+  key_id: process.env.RAZORPAY_API_KEY,
+  key_secret: process.env.RAZORPAY_API_SECRET,
+  // headers: {
+  //   "X-Razorpay-Account": "<merchant_account_id>"
+  // }
+});
 
 const server = app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

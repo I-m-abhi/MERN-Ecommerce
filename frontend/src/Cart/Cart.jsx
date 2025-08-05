@@ -10,7 +10,7 @@ const Cart = () => {
   const subTotal = cartItems.reduce((acc,item)=>acc + item.price * item.quantity,0);
   const tax = subTotal * 0.18;
   const shippingPrice = subTotal > 500 ? 0 : 50;
-  const total = subTotal + tax + shippingPrice;
+  const total = (subTotal + tax + shippingPrice).toFixed(2);
 
   const checkoutHandler = ()=> {
     navigate(`/login?redirect=/shipping`)
