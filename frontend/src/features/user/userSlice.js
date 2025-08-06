@@ -35,7 +35,7 @@ export const loginUser = createAsyncThunk('user/login', async ({ email, password
 
 export const loadUser = createAsyncThunk('user/profile', async (_, { rejectWithValue }) => {
   try {
-    const { data } = await axios.get('api/v1/profile')
+    const { data } = await axios.get('/api/v1/profile')
     return data
   } catch (error) {
     return rejectWithValue(error.response?.data || 'Failed to load user profile!')
@@ -44,7 +44,7 @@ export const loadUser = createAsyncThunk('user/profile', async (_, { rejectWithV
 
 export const logout = createAsyncThunk('user/logout', async (_, { rejectWithValue }) => {
   try {
-    const { data } = await axios.post('api/v1/logout', { withCredentials: true })
+    const { data } = await axios.post('/api/v1/logout', { withCredentials: true })
     return data
   } catch (error) {
     return rejectWithValue(error.response?.data || 'Failed to logout!')

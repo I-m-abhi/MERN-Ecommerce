@@ -25,7 +25,7 @@ const UserDashboard = ({ user }) => {
   // console.log(menuVisible)
 
   function orders() {
-    navigate("/orders/user")
+    navigate("/my/orders")
   }
   function profile() {
     navigate("/profile")

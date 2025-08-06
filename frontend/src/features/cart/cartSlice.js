@@ -46,6 +46,11 @@ const cartSlice = createSlice({
     saveShippingInfo: (state, action)=> {
       state.shippingInfo = action.payload
       localStorage.setItem('shippingInfo', JSON.stringify(state.shippingInfo))
+    },
+    clearCart: (state, action)=> {
+      state.cartItems = []
+      localStorage.removeItem('cartItems')
+      localStorage.removeItem('shippingInfo')
     }
   },
   extraReducers: (builder) => {
@@ -77,6 +82,6 @@ const cartSlice = createSlice({
   }
 })
 
-export const { removeErrors, removeMessages, removeItemFromCart, saveShippingInfo } = cartSlice.actions;
+export const { removeErrors, removeMessages, removeItemFromCart, saveShippingInfo, clearCart } = cartSlice.actions;
 
 export default cartSlice.reducer;
